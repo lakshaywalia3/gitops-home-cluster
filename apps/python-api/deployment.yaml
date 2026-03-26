@@ -16,6 +16,7 @@ spec:
     spec:
       containers:
       - name: python-api
+        # IMPORTANT: Keep your custom image and tag here!
         image: walialakshay/python-gitops-app:e2942cc5ee78757523daa4b9540989a739eb6201
         ports:
         - containerPort: 8080
@@ -31,4 +32,24 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 8080
-  type: LoadBalancer
+  # We changed this to ClusterIP! It no longer gets a MetalLB address.
+  type: ClusterIP 
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: python-api-ingress
+  annotations:
+    ingressClassName: traefik
+spec:
+  rules:
+  - host: python.home.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: python-api-service
+            port:
+              number: 80
