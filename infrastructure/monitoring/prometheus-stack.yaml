@@ -8,10 +8,26 @@ spec:
   source:
     chart: kube-prometheus-stack
     repoURL: https://prometheus-community.github.io/helm-charts
-    targetRevision: 56.6.2 # Pinning a specific version for stability
+    targetRevision: 56.6.2
     helm:
       releaseName: monitoring
       values: |
+        # --- START OF K3S FIXES ---
+        # Tell Prometheus to stop looking for cloud-specific components
+        kubeControllerManager:
+          enabled: false
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        # Tell Prometheus to trust the K3s node certificates
+        kubelet:
+          enabled: true
+          serviceMonitor:
+            insecureSkipVerify: true
+        # --- END OF K3S FIXES ---
         grafana:
           adminPassword: "admin"
           ingress:
